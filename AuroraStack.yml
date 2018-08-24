@@ -1,0 +1,261 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  VPCCIDRBlock:
+    Description: CIDR Block for the VPC you are creating.
+    Type: String
+    Default: 10.0.0.0/16
+    AllowedPattern: '[a-zA-Z0-9]+\..+'
+  VPCSubnet1:
+    Description: >-
+      CIDR Block for the VPC you are creating. This subnet is for Linux instance
+      with Oracle and Amazon Aurora
+    Type: String
+    Default: 10.0.0.0/24
+    AllowedPattern: '[a-zA-Z0-9]+\..+'
+  VPCSubnet2:
+    Description: CIDR Block for the VPC you are creating.
+    Type: String
+    Default: 10.0.1.0/24
+    AllowedPattern: '[a-zA-Z0-9]+\..+'
+  MyIP:
+    Description: >-
+      IP address of your Machine. Open new browser and use search engine for
+      Whats my IP . Copy IP address and paste it here. ex: x.x.x.x/32
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: '[a-zA-Z0-9]+\..+'    
+  AuroraDBUsername:
+    Default: auradmin
+    NoEcho: 'false'
+    Description: >-
+      Enter database Admin username for RDS Aurora MySQL (default username:
+      auradmin) 
+    Type: String
+    MinLength: '4'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: >-
+      must begin with a letter and contain a minimum of 4 alphanumeric
+      characters.
+  AuroraDBPassword:
+    Default: auradmin123
+    NoEcho: 'true'
+    Description: 'Enter password for Aurora Admin user (default password: auradmin123)'
+    Type: String
+    MinLength: '8'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]*'
+    ConstraintDescription: must contain only alphanumeric characters with minimum of 8 characters.
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VPCCIDRBlock
+          - VPCSubnet1
+          - VPCSubnet2
+          - MyIP
+      - Label:
+          default: Amazon Aurora Configuration
+        Parameters:
+          - AuroraDBUsername
+          - AuroraDBPassword
+Resources:
+  S3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:*'
+            Resource: '*'
+      RouteTableIds:
+        - !Ref PublicRouteTable
+      ServiceName: !Join 
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .s3
+      VpcId: !Ref VPC
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: !Ref VPCCIDRBlock
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+  PublicSubnet1:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn: VPC
+    Properties:
+      CidrBlock: !Ref VPCSubnet1
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select 
+        - '0'
+        - !GetAZs ''
+  PublicSubnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: !Ref VPCSubnet2
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select 
+        - '1'
+        - !GetAZs ''
+  myInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref myInternetGateway
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+  PublicRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref myInternetGateway
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnetRouteTableAssociation2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+  AuroraSecurity:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn: VPC
+    Properties:
+      GroupDescription: create security group for Amazon Aurora
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '3306'
+          ToPort: '3306'
+          CidrIp: 10.0.0.0/16
+        - IpProtocol: tcp
+          FromPort: '3306'
+          ToPort: '3306'
+          CidrIp: !Ref MyIP
+      VpcId: !Ref VPC
+  AuroraSecurityIngress:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref AuroraSecurity
+      IpProtocol: tcp
+      FromPort: '0'
+      ToPort: '65535'
+      SourceSecurityGroupId: !Ref AuroraSecurity
+  MyDBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: Subnet available for the DMS Demo RDS DB Instance
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+  AuroraCluster:
+    Type: 'AWS::RDS::DBCluster'
+    DeletionPolicy: Delete
+    Properties:
+      AvailabilityZones:
+        - !GetAtt 
+          - PublicSubnet1
+          - AvailabilityZone
+        - !GetAtt 
+          - PublicSubnet2
+          - AvailabilityZone
+      MasterUsername: !Ref AuroraDBUsername
+      MasterUserPassword: !Ref AuroraDBPassword
+      Engine: aurora
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref AuroraSecurity
+  AuroraDB:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+      Engine: aurora
+      MultiAZ: 'false'
+      DBClusterIdentifier: !Ref AuroraCluster
+      PubliclyAccessible: 'true'
+      AvailabilityZone: !GetAtt 
+        - PublicSubnet1
+        - AvailabilityZone
+      DBInstanceClass: db.t2.medium
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+Outputs:
+  VPCID:
+    Description: VPC Id
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${AWS::StackName}-VPCID'
+  AuroraMySQLPORT:
+    Description: Amazon Aurora MySQL default PORT
+    Value: '3306'
+  AuroraSecurityGroupID:
+    Description: Name of RDS Aurora MySQL cluster SecurityGroup ID.
+    Value: !Ref AuroraSecurity
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraSecurityGroupID'
+  AuroraClusterEndPoint:
+    Description: RDS Aurora MySQL cluster end point
+    Value: !GetAtt 
+      - AuroraCluster
+      - Endpoint.Address
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraClusterEndPoint'
+  AuroraClusterUserName:
+    Description: RDS Aurora MySQL cluster username
+    Value: !Ref AuroraDBUsername
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraClusterUserName'
+  AuroraClusterPassword:
+    Description: RDS Aurora MySQL cluster password
+    Value: !Ref AuroraDBPassword
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraClusterPassword'
+  AuroraSubnetAZ:
+    Description: RDS Aurora MySQL AvailabilityZone
+    Value: !GetAtt 
+      - PublicSubnet1
+      - AvailabilityZone
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraSubnetAZ'
+  AuroraSubnetID:
+    Description: RDS Aurora MySQL AvailabilityZone
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraSubnetID'
+  AuroraDatabaseName:
+    Description: RDS Aurora MySQL database name
+    Value: sakila
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraDatabaseName'
+  AuroraJDBCConnectionString:
+    Description: JDBC connection string for Aurora database
+    Value: !Join 
+      - ''
+      - - 'jdbc:mysql://'
+        - !GetAtt 
+          - AuroraCluster
+          - Endpoint.Address
+        - ':'
+        - !GetAtt 
+          - AuroraCluster
+          - Endpoint.Port
+        - /sakila
+    Export:
+      Name: !Sub '${AWS::StackName}-AuroraJDBCConnectionString'
+
+
