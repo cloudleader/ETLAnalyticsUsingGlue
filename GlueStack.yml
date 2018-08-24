@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  AuroraStackName:
+    Description: >-
+      Please enter the name of the CloudFormation stack that was used to deploy
+      the RDS Aurora MySQL resource.
+    Default: AuroraStack
+    Type: String    
+  S3DestinationBucketName:
+    Description: The S3 Bucket Name.
+    Type: String
+  DatabasePath:
+    Description: >-
+      Schema Path for crawling the database and table schemas. DBname/% for
+      crawling all the tables in the DB
+    Default: sakila/%
+    Type: String
+Mappings:
+  RegionMap:
+    us-east-2:
+      scriptpath: s3://aurora-glue-etl-script-east2/sakila_etl.py
+    us-west-2:
+      scriptpath: s3://aurora-glue-etl-script/sakila_etl.py
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref S3DestinationBucketName
+  AWSGlueRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  AWSGluedatabaseRDS:
+    Type: 'AWS::Glue::Database'
+    Properties:
+      DatabaseInput:
+        Name: sakiladb
+      CatalogId: !Ref 'AWS::AccountId'
+  AWSGlueconnectionRDS:
+    Type: 'AWS::Glue::Connection'
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      ConnectionInput:
+        ConnectionType: JDBC
+        ConnectionProperties:
+          JDBC_CONNECTION_URL: !ImportValue 
+            'Fn::Sub': '${AuroraStackName}-AuroraJDBCConnectionString'
+          USERNAME: !ImportValue 
+            'Fn::Sub': '${AuroraStackName}-AuroraClusterUserName'
+          PASSWORD: !ImportValue 
+            'Fn::Sub': '${AuroraStackName}-AuroraClusterPassword'
+        Name: rds-aurora-blog-conn
+        PhysicalConnectionRequirements:
+          AvailabilityZone: !ImportValue 
+            'Fn::Sub': '${AuroraStackName}-AuroraSubnetAZ'
+          SecurityGroupIdList:
+            - !ImportValue 
+              'Fn::Sub': '${AuroraStackName}-AuroraSecurityGroupID'
+          SubnetId: !ImportValue 
+            'Fn::Sub': '${AuroraStackName}-AuroraSubnetID'
+  GlueCrawler:
+    Type: 'AWS::Glue::Crawler'
+    Properties:
+      Name: rds-aurora-blog-crawler
+      Role: !GetAtt 
+        - AWSGlueRole
+        - Arn
+      Description: Crawler
+      DatabaseName: !Ref AWSGluedatabaseRDS
+      TablePrefix: glue_
+      Targets:
+        JdbcTargets:
+          - ConnectionName: !Ref AWSGlueconnectionRDS
+            Path: !Ref DatabasePath
+  GlueJob:
+    Type: 'AWS::Glue::Job'
+    Properties:
+      Role: !Ref AWSGlueRole
+      Connections:
+        Connections:
+          - !Ref AWSGlueconnectionRDS
+      Description: Job created with CloudFormation using existing script
+      Command:
+        Name: glueetl
+        ScriptLocation: !FindInMap [RegionMap, !Ref 'AWS::Region', scriptpath]
+      DefaultArguments:
+        '--job-bookmark-option': job-bookmark-enable
+        '--destination': !Ref S3Bucket
+      ExecutionProperty:
+        MaxConcurrentRuns: 2
+      MaxRetries: 0
+      Name: !Join 
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - aurora-etljob
+      AllocatedCapacity: '10'
+Outputs:
+  S3BucketName:
+    Description: Name of S3 bucket
+    Value: !Ref S3Bucket
+  gluedbName:
+    Value: !Ref AWSGluedatabaseRDS
+    Description: Name of the database in Glue catalog.
+  GlueConnectionName:
+    Value: !Ref AWSGlueconnectionRDS
+    Description: Name of the Aurora MySQL JDBC Connection in Glue.
+  GlueCrawlerName:
+    Value: !Ref GlueCrawler
+    Description: Name of the Crawler in Glue.
+  GlueJobName:
+    Value: !Ref GlueJob
+    Description: Name of the AWS Glue Job.
+  GlueIAMRole:
+    Value: !Ref AWSGlueRole
+    Description: IAM Glue Service Role. This role will be needed during Glue job creation.
+
