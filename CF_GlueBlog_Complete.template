@@ -1,0 +1,841 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Glue Blog template",
+    "Parameters": {
+        "email": {
+            "Description": "Email address to send notification about successfully completed ETL jobs.",
+            "Type": "String",
+            "ConstraintDescription": "myemail@example.com"
+        },
+        "dbName": {
+            "Description": "Database name where the crawler will write to",
+            "Type": "String"
+        },
+        "crawlerName": {
+            "Description": "Crawler name",
+            "Type": "String"
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Blog set up"
+                    },
+                    "Parameters": [
+                        "email"
+                    ]
+                }
+            ]
+        },
+        "AWS::CloudFormation::Designer": {
+            "ad534c65-2413-40c9-b70f-477b20f5fbc8": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 60,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "055858b7-7048-4b98-b581-5e9c30d30d6d": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "fc62e653-38f1-4e71-8314-4e4045fbf35c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "979c92d3-f880-4d01-affa-13e7523c863c": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 210
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "7a04e896-0fd1-485a-89ec-bc7278988979": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 60,
+                    "y": 330
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "3f06ad31-bf81-4f20-9591-9be4a802dbc1": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 330
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "0f79041e-1d2c-4885-b0a7-24e8362fc719": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 300,
+                    "y": 330
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "a96a81d0-eb5d-4db3-bf9a-b9fc1e31bd18": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 420,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": [],
+                "isassociatedwith": [
+                    "0f79041e-1d2c-4885-b0a7-24e8362fc719"
+                ]
+            },
+            "c1ee09e7-8b5a-4d63-b599-f161d82f1890": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 10,
+                    "y": 210
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "7b1ff54c-08c9-482c-8ebf-ed3208680065": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -60,
+                    "y": 310
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "f055e527-43dc-4c6d-94e9-9a4a2373ffcf": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -260,
+                    "y": 140
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "9671ab8e-0042-4fd6-a4f1-47c87e27d0d0": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -380,
+                    "y": 150
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "1703bc4a-797a-4cb1-9d72-f84a6b97c38b": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -380,
+                    "y": 270
+                },
+                "z": 0,
+                "embeds": []
+            },
+            "8eb15c2a-0ec9-4ee6-b748-ae94f0c05566": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": -220,
+                    "y": 270
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "f055e527-43dc-4c6d-94e9-9a4a2373ffcf"
+                ]
+            },
+            "94752989-4e85-483b-bfd4-db44a11aed72": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 180,
+                    "y": 210
+                },
+                "z": 0,
+                "embeds": [],
+                "isassociatedwith": [
+                    "055858b7-7048-4b98-b581-5e9c30d30d6d"
+                ]
+            }
+        }
+    },
+    "Resources": {
+        "RawS3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "979c92d3-f880-4d01-affa-13e7523c863c"
+                }
+            }
+        },
+        "ProcessedS3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "fc62e653-38f1-4e71-8314-4e4045fbf35c"
+                }
+            }
+        },
+        "SNSProcessedEvent": {
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+                "Subscription": [
+                    {
+                        "Endpoint": {
+                            "Ref": "email"
+                        },
+                        "Protocol": "email"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "055858b7-7048-4b98-b581-5e9c30d30d6d"
+                }
+            }
+        },
+        "SQSqueue": {
+            "Type": "AWS::SQS::Queue",
+            "Properties": {
+                "DelaySeconds": 300,
+                "VisibilityTimeout": 300
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "ad534c65-2413-40c9-b70f-477b20f5fbc8"
+                }
+            }
+        },
+        "GlueLambdaExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "LambdaExecutionRole",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "gluePermissions",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "glue:CreateJob",
+                                        "glue:CreateTable",
+                                        "glue:StartCrawler",
+                                        "glue:CreateDatabase",
+                                        "glue:StartJobRun",
+                                        "glue:StopCrawler",
+                                        "glue:CreatePartition",
+                                        "glue:GetJob",
+                                        "glue:StartTrigger",
+                                        "glue:CreateCrawler"
+                                    ],
+                                    "Resource": "*"
+                                },
+                                {
+                                    "Sid": "writelogs",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                    ],
+                                    "Resource": "arn:aws:logs:*:*:*"
+                                },
+                                {
+                                    "Sid": "iamroles",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "iam:PassRole"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::GetAtt": [
+                                                "GlueLabRole",
+                                                "Arn"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "Sid": "sqspolicy",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "sqs:DeleteMessage",
+                                        "sqs:ListQueues",
+                                        "sqs:ReceiveMessage",
+                                        "sqs:SendMessage",
+                                        "sqs:GetQueueAttributes"
+                                    ],
+                                    "Resource": [
+                                        {
+                                            "Fn::GetAtt": [
+                                                "SQSqueue",
+                                                "Arn"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "3f06ad31-bf81-4f20-9591-9be4a802dbc1"
+                }
+            }
+        },
+        "GlueTriggerLambda": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "ZipFile": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "var AWS = require('aws-sdk');\n",
+                                "var glue = new AWS.Glue();\n",
+                                "var sqs = new AWS.SQS();\n",
+                                "\texports.handler = function(event, context,callback) {\n",
+                                "\t\tconsole.log(JSON.stringify(event, null, 3));\n",
+                                "\t\tif(event.Records.length > 0 && event.Records[0].eventSource == 'aws:sqs'){\n",
+                                "\t\t\tstartCrawler('",
+                                {
+                                    "Ref": "crawlerName"
+                                },
+                                "', function(err2,data2){\n",
+                                "\t\t\t\tif(err2) callback(err2)\n",
+                                "\t\t\t\telse callback(null,data2)\n",
+                                "\t\t\t})\n",
+                                "\t\t}else{\n",
+                                "\t\tvar dbName = '",
+                                {
+                                    "Ref": "dbName"
+                                },
+                                "';\n",
+                                "\t\tvar params = {\n",
+                                "\t\t\tDatabaseInput: {\n",
+                                "\t\t\t\tName: dbName,\n",
+                                "\t\t\t\tDescription: 'Blog Post database',\n",
+                                "\t\t\t}\n",
+                                "\t\t};\n",
+                                "\t\tglue.createDatabase(params, function(err, data) {\n",
+                                "\t\t\t\tvar params1 = {\n",
+                                "\t\t\t\t\tDatabaseName: dbName,\n",
+                                "\t\t\t\t\tName: '",
+                                {
+                                    "Ref": "crawlerName"
+                                },
+                                "',\n",
+                                "\t\t\t\t\tRole: 'service-role/",
+                                {
+                                    "Ref": "GlueLabRole"
+                                },
+                                "',\n",
+                                "\t\t\t\t\tTargets: {\n",
+                                "\t\t\t\t\t\tS3Targets: [{ Path: 's3://",
+                                {
+                                    "Ref": "RawS3Bucket"
+                                },
+                                "' }]\n",
+                                "\t\t\t\t\t},\n",
+                                "\t\t\t\t\tDescription: 'crawler test'\n",
+                                "\t\t\t\t};\n",
+                                "\t\t\t\tglue.createCrawler(params1, function(err1, data1) {\n",
+                                "\t\t\t\t\tstartCrawler('",
+                                {
+                                    "Ref": "crawlerName"
+                                },
+                                "', function(err2,data2){\n",
+                                "\t\t\t\t\t\tif(err2) callback(err2)\n",
+                                "\t\t\t\t\t\telse callback(null,data2)\n",
+                                "\t\t\t\t\t})\n",
+                                "\t\t\t\t});\n",
+                                "\t\t});\n",
+                                "\t};\n",
+                                "};\n",
+                                "function startCrawler(name,callback){\n",
+                                "\tvar params = {\n",
+                                "\t\tName: name,\n",
+                                "\t};\n",
+                                "\tglue.startCrawler(params, function(err, data) {\n",
+                                "\t\tif (err){\n",
+                                "\t\t\tconsole.log(JSON.stringify(err,null,3 ))\n",
+                                "\t\t\tvar params1 = {\n",
+                                "\t\t\t\tMessageBody: 'retry',\n",
+                                "\t\t\t\tQueueUrl: '",
+                                {
+                                    "Ref": "SQSqueue"
+                                },
+                                "'\n",
+                                "\t\t\t};\n",
+                                "\t\t\tsqs.sendMessage(params1, function(err1, data1) {\n",
+                                "\t\t\t\tif (err1) callback(err1);\n",
+                                "\t\t\t\telse     callback(null, data1)\n",
+                                "\t\t\t});\n",
+                                "\t\t}\n",
+                                "\t\telse{\n",
+                                "\t\t\tcallback(null, data)\n",
+                                "\t\t}\n",
+                                "\t});\n",
+                                "\t}\n"
+                            ]
+                        ]
+                    }
+                },
+                "Description": "Glue trigger Lambda Function",
+                "Handler": "index.handler",
+                "MemorySize": 128,
+                "Role": {
+                    "Fn::GetAtt": [
+                        "GlueLambdaExecutionRole",
+                        "Arn"
+                    ]
+                },
+                "Runtime": "nodejs8.10",
+                "Timeout": 300
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "0f79041e-1d2c-4885-b0a7-24e8362fc719"
+                }
+            }
+        },
+        "GlueLabRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "glue.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/service-role/",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+                ],
+                "Policies": [
+                    {
+                        "PolicyName": "S3Access",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "s3access",
+                                    "Effect": "Allow",
+                                    "Action": "s3:*",
+                                    "Resource": [
+                                        {
+                                            "Fn::Join": [
+                                                "",
+                                                [
+                                                    {
+                                                        "Fn::GetAtt": [
+                                                            "RawS3Bucket",
+                                                            "Arn"
+                                                        ]
+                                                    },
+                                                    "*"
+                                                ]
+                                            ]
+                                        },
+                                        {
+                                            "Fn::Join": [
+                                                "",
+                                                [
+                                                    {
+                                                        "Fn::GetAtt": [
+                                                            "ProcessedS3Bucket",
+                                                            "Arn"
+                                                        ]
+                                                    },
+                                                    "*"
+                                                ]
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "7a04e896-0fd1-485a-89ec-bc7278988979"
+                }
+            }
+        },
+        "SQSLambdaEvent": {
+            "Type": "AWS::Lambda::EventSourceMapping",
+            "Properties": {
+                "EventSourceArn": {
+                    "Fn::GetAtt": [
+                        "SQSqueue",
+                        "Arn"
+                    ]
+                },
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "GlueTriggerLambda",
+                        "Arn"
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "a96a81d0-eb5d-4db3-bf9a-b9fc1e31bd18"
+                }
+            }
+        },
+        "OpsEventRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "EventRule",
+                "EventPattern": {
+                    "detail-type": [
+                        "Glue Job State Change"
+                    ],
+                    "source": [
+                        "aws.glue"
+                    ],
+                    "detail": {
+                        "jobName": [
+                            "Your-ETL-JobName"
+                        ],
+                        "state": [
+                            "SUCCEEDED"
+                        ]
+                    }
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Ref": "SNSProcessedEvent"
+                        },
+                        "Id": "SNSTopic"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c1ee09e7-8b5a-4d63-b599-f161d82f1890"
+                }
+            }
+        },
+        "ETLJobLambda": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "ZipFile": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "var AWS = require('aws-sdk');\n",
+                                "var sns = new AWS.SNS( { region: \"",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\" });\n",
+                                "var s3 = new AWS.S3();\n",
+                                "var glue = new AWS.Glue({apiVersion: '2017-03-31'});\n",
+                                "\texports.handler = function(event, context, callback) {\n",
+                                "\t\tvar params = {\n",
+                                "\t\t\tJobName: 'Your-ETL-jobName',\n",
+                                "\t\t\tTimeout: 20,\n",
+                                "\t\t};\n",
+                                "\t\tglue.startJobRun(params, function(err1, data1) {\n",
+                                "\t\t\tif (err1) {\n",
+                                "\t\t\t\tconsole.log(err1, err1.stack);}\n",
+                                "\t\t\telse {\n",
+                                "\t\t\t\tconsole.log(data1);}\n",
+                                "\t\t});\n",
+                                "\t\tconsole.log(JSON.stringify(event, null, 3));\n",
+                                "\t};\n"
+                            ]
+                        ]
+                    }
+                },
+                "Description": "SNS trigger Lambda Function",
+                "Handler": "index.handler",
+                "MemorySize": 128,
+                "Role": {
+                    "Fn::GetAtt": [
+                        "ETLJobExecutionRole",
+                        "Arn"
+                    ]
+                },
+                "Runtime": "nodejs8.10",
+                "Timeout": 50
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "f055e527-43dc-4c6d-94e9-9a4a2373ffcf"
+                }
+            }
+        },
+        "ETLJobExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "lambda.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "LambdaExecutionRole",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Sid": "writelogs",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                    ],
+                                    "Resource": "arn:aws:logs:*:*:*"
+                                },
+                                {
+                                    "Sid": "gluePermissions",
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "glue:CreateJob",
+                                        "glue:CreateTable",
+                                        "glue:StartCrawler",
+                                        "glue:CreateDatabase",
+                                        "glue:StartJobRun",
+                                        "glue:StopCrawler",
+                                        "glue:CreatePartition",
+                                        "glue:GetJob",
+                                        "glue:StartTrigger",
+                                        "glue:CreateCrawler"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "9671ab8e-0042-4fd6-a4f1-47c87e27d0d0"
+                }
+            }
+        },
+        "CrawlerEventRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "EventRule",
+                "EventPattern": {
+                    "source": [
+                        "aws.glue"
+                    ],
+                    "detail-type": [
+                        "Glue Crawler State Change"
+                    ],
+                    "detail": {
+                        "crawlerName": [
+                            {
+                                "Ref": "crawlerName"
+                            }
+                        ],
+                        "state": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "State": "ENABLED",
+                "Targets": [
+                    {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "ETLJobLambda",
+                                "Arn"
+                            ]
+                        },
+                        "Id": "TargetFunctionV1"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "1703bc4a-797a-4cb1-9d72-f84a6b97c38b"
+                }
+            }
+        },
+        "PermissionForEventsToInvokeLambda": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Ref": "ETLJobLambda"
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "events.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "CrawlerEventRule",
+                        "Arn"
+                    ]
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "8eb15c2a-0ec9-4ee6-b748-ae94f0c05566"
+                }
+            }
+        },
+        "EventTopicPolicySNS": {
+            "Type": "AWS::SNS::TopicPolicy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "events.amazonaws.com"
+                            },
+                            "Action": "sns:Publish",
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Topics": [
+                    {
+                        "Ref": "SNSProcessedEvent"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "94752989-4e85-483b-bfd4-db44a11aed72"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "RawBucketName": {
+            "Description": "This the bucket name of where your Raw data will be store at",
+            "Value": {
+                "Ref": "RawS3Bucket"
+            }
+        },
+        "ProcessedBucketName": {
+            "Description": "This the bucket name of where your Processed data will be store at",
+            "Value": {
+                "Ref": "ProcessedS3Bucket"
+            }
+        },
+        "GlueTriggerLambda": {
+            "Description": "This the lambda function which will trigger Glue job",
+            "Value": {
+                "Ref": "GlueTriggerLambda"
+            }
+        }
+    }
+}
